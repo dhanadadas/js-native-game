@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="style.css" />
+    <title>JS game</title>
+
+  </head>
+  <body>
+    <div class="movie-container">
+      <label>JS NATIVE Game:</label>
+      <select style="display: none" id="movie">
+        <option value="10">Option 1 ($10)</option>
+        <option value="12">Option 2 ($12)</option>
+        <option value="8">Option 3 ($8)</option>
+        <option value="9">Option 4 ($9)</option>
+      </select>
+    </div>
+
+<!--    <ul  style="display: none" class="showcase">-->
+<!--      <li>-->
+<!--        <div class="seat"></div>-->
+<!--        <small>N/A</small>-->
+<!--      </li>-->
+<!--      <li>-->
+<!--        <div class="seat selected"></div>-->
+<!--        <small>Selected</small>-->
+<!--      </li>-->
+<!--      <li>-->
+<!--        <div class="seat occupied"></div>-->
+<!--        <small>Occupied</small>-->
+<!--      </li>-->
+<!--    </ul>-->
+
+    <div id="main" class="container">
+      <div style="display: none" class="screen"></div>
+
+<!--      <div id="container" class="row">-->
+<!--        <div id="nomer1" class="seat occupied pulse">99</div>-->
+
+<!--      </div>-->
+    </div>
+    <script>
+      let Vx=9;// временная база
+      let Vy=24;
+      let countRow = 20;
+      let countColumn = 50;
+      let StartRow = 5;
+      let StartColumn =5;
+
+
+      function genNewRow (countRow,countColumn,StartRow,StartColumn) {
+        //if (startRow === undefined) startRow = 1;
+        //if (StartColumn === undefined) StartColumn = 1;
+        for (let i=0; i<countRow; i++){
+          CreateRow(StartRow+i);
+            for (let y=0; y<countColumn; y++){
+              CreateColumn(StartRow+i,StartColumn+y);
+            }
+        }
+      }
+      function genNewRowUp (countRow,countColumn,StartRow,StartColumn) {
+        //if (startRow === undefined) startRow = 1;
+        //if (StartColumn === undefined) StartColumn = 1;
+        for (let i=0; i<countRow; i++){
+          CreateRow(StartRow+i, 1);
+          for (let y=0; y<countColumn; y++){
+            CreateColumn(StartRow+i,StartColumn+y);
+          }
+        }
+      }
+
+      function CreateRow(NumberRow,up) {
+        var row=document.createElement('div');
+        row.className = "row";
+        row.id = "row"+NumberRow;
+        row.setAttribute("data-row", NumberRow);
+        if (up===1){
+          var wall=document.getElementById('main');
+          var first=wall.childNodes[0];
+          wall.insertBefore(row,first);
+        } else {
+        document.getElementById('main').appendChild(row);
+      }
+      }
+
+      function CreateColumn(NumberRow, NumberColumn, left) {
+        var seat = document.createElement('div');
+        seat.setAttribute("data-row", NumberRow);
+        seat.setAttribute("data-column", NumberColumn);
+        //генерация золота
+        let random= Math.round(Math.random()*10);
+        if (random === 3){
+          random="gold";
+          //}else if (random === 5){
+          //random="forest";
+        }else random="";
+        // генерация золота окончена
+        // база
+        if (NumberRow === Vx && NumberColumn === Vy){
+          random="selected";
+        }
+        // конец базы
+        // доступные клетки
+        if (NumberRow <= (Vx+1) && NumberColumn <= (Vy+1) && NumberRow >= (Vx-1) && NumberColumn >= (Vy-1)   ){
+          random="available";
+        }
+        // конец доступные клетки
+        seat.className = "seat "+random;
+        seat.id = "seat"+NumberRow+"-"+NumberColumn;
+        if (left===1){
+          var wall=document.getElementById('row'+NumberRow);
+          var first=wall.childNodes[0];
+          wall.insertBefore(seat,first);
+        } else {
+          document.getElementById('row' + NumberRow).appendChild(seat);
+        }
+      }
+
+      function firstDivDelete() { // brilliant function name :-)
+        var div = document.getElementById("main").getElementsByClassName('row');
+        var firstDiv = div[0];
+        firstDiv.parentNode.removeChild(firstDiv);
+        // создать
+        var lastDiv = document.getElementById("main").getElementsByClassName('row');
+        lastDiv = lastDiv[lastDiv.length-1];
+        lastId= +lastDiv.getAttribute("id");
+        lastIdRow= +lastDiv.getAttribute("data-row");
+        genNewRow(1,countColumn,lastIdRow+1,StartColumn);
+      }
+      function lastDivDelete() { // brilliant function name :-)
+        var div = document.getElementById("main").getElementsByClassName('row');
+        var lastDiv = div[div.length-1];
+        lastDiv.parentNode.removeChild(lastDiv);
+        // создать
+        var firstdiv = document.getElementById("main").getElementsByClassName('row');
+        firstDivE = firstdiv[0];
+        firstDiv= +firstDivE.getAttribute("id");
+        firstIdRow= +firstDivE.getAttribute("data-row");
+        genNewRowUp(1,countColumn,firstIdRow-1,StartColumn);
+      }
+      function LDivColumn (){
+        let Lseat =document.getElementsByClassName('seat')[0];
+        LIdColumn= +Lseat.getAttribute("data-column");
+        return LIdColumn;
+      }
+      function RDivColumn (){
+        let Rseat =document.getElementsByClassName('seat');
+        Rseat=Rseat[Rseat.length-1];
+        RIdColumn= +Rseat.getAttribute("data-column");
+        return RIdColumn;
+      }
+      function DDivRow1 (){
+        lastDiv = document.getElementById("main").getElementsByClassName('row');
+        lastDiv = lastDiv[lastDiv.length-1];
+         lastId= +lastDiv.getAttribute("id");
+       lastIdRow= +lastDiv.getAttribute("data-row");
+        return lastIdRow;
+      }
+      function UDivRow1 (){
+       firstdiv = document.getElementById("main").getElementsByClassName('row');
+        firstDivE = firstdiv[0];
+        firstDiv= +firstDivE.getAttribute("id");
+        firstIdRow= +firstDivE.getAttribute("data-row");
+        return firstIdRow;
+      }
+
+      function LDivDelete() {
+
+        let RIdColumn= RDivColumn();
+        let LIdColumn= LDivColumn();
+        let DDivRow= DDivRow1();
+        let UDivRow= UDivRow1();
+        for (let x=0;x<countRow;x++){
+          document.getElementById("seat"+(UDivRow+x)+"-"+LIdColumn).remove();// не очень работает
+          CreateColumn((UDivRow+x),RIdColumn+1);
+        }
+      }
+      function RDivDelete() {
+        let RIdColumn= RDivColumn();
+        let LIdColumn= LDivColumn();
+        let DDivRow = DDivRow1();
+        let UDivRow = UDivRow1();
+        for (let x=0;x<countRow;x++){
+          document.getElementById("seat"+(UDivRow+x)+"-"+RIdColumn).remove();// не очень работает
+
+        }
+      }
+
+      genNewRow(countRow,countColumn,StartRow,StartColumn);
+
+
+      document.onkeydown = function(e) {
+        let firstE=document.getElementsByClassName('row')[0];
+        firstDataRow = +firstE.getAttribute("data-row");
+
+        switch (e.keyCode) {
+
+          case 39:// вправо
+            LDivDelete();
+            break;
+          case 38: // вверх
+            lastDivDelete();
+            break;
+          case 37: // влево
+            RDivDelete();
+            break;
+          case 40: // вниз
+            firstDivDelete();
+            break;
+        }
+      };
+    </script>
+      <p class="text">
+      You have <span id="count">0</span> GOLD $<span
+        id="total"
+        >0</span
+      >
+    </p>
+
+    <script src="script.js"></script>
+  </body>
+
+</html>
