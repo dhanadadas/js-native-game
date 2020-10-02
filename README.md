@@ -3,4 +3,5 @@
 
 Планируется подключить node.js и mongoDB
 
-![Игра на native JS](js-game.png "Игра на native JS")
+![Игра на native JS](js-game.png "Игра на native JS") 
+ 
